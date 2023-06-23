@@ -43,6 +43,13 @@ tasks.build {
     }
 }
 
+jar {
+    from sourceSets.main.output
+    archiveBaseName = 'COMMON'
+    archiveVersion = '1.0'
+}
+
+
 tasks.named('test') {
     useJUnitPlatform()
 }
