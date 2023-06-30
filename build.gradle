@@ -30,24 +30,48 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-// 빌드 결과물을 복사할 디렉토리 경로 설정
-def buildOutputDir = file('C:\\Users\\jbkim\\IdeaProjects\\local-repository')
-
-// 기존 build 태스크 수정
-tasks.build {
-    doLast {
-        copy {
-            from "${buildDir}/libs"
-            into buildOutputDir
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDir 'src/main/resources'
         }
     }
 }
 
-jar {
-    from sourceSets.main.output
-    archiveBaseName = 'COMMON'
-    archiveVersion = '1.0'
+apply plugin: 'maven-publish'
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = group
+            artifactId = rootProject.name
+            version = version
+
+            artifact("build/libs/$rootProject.name-$version"+".jar") {
+                extension 'jar'
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "http://3.35.231.30:8081/repository/maven-snapshots/"
+            credentials {
+                username project.nexusUsername
+                password project.nexusPassword
+                allowInsecureProtocol = true
+            }
+        }
+    }
 }
+
+tasks {
+    processResources {
+        duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.INCLUDE
+    }
+}
+
 
 
 tasks.named('test') {
